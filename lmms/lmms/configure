@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "Usage of configure & Co is deprecated! Please see the INSTALL file:"
+echo ""
+
+cat INSTALL

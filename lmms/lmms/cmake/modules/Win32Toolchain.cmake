@@ -1,0 +1,6 @@
+SET(MINGW_PREFIX /opt/mingw32)
+
+SET(CMAKE_SYSTEM_PROCESSOR i686)
+
+INCLUDE(MinGWCrossCompile)
+

@@ -1,0 +1,276 @@
+-----------------------------------------------------------------------------------
+
+    Copyright (C) 2004-2010 Fons Adriaensen
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+-----------------------------------------------------------------------------------
+
+
+I'm using these mostly with Ardour (see below for some hints),
+but you could use any of these plugins as well in a softsynth
+such as AMS. 
+
+--------------------------------------------
+AMB-plugins-0.8.1   Released 2010.11.14
+--------------------------------------------
+
+* Added UHJ encoder and decoder.
+
+--------------------------------------------
+AMB-plugins-0.6.1   Released 2009.11.01
+--------------------------------------------
+
+* Four new third order plugins added, created by
+  Joern Nettingsmeier.
+
+  1963 order 3,1 Mono panner
+  1964 order 3,1 Z-axis rotator
+  1965 full periphonic order 3 Mono panner
+  1965 full periphonic order 3 Z-axis rotator
+
+  See below for channel orders.
+
+* Added a first order 'virtual stereo mic' (same
+  as used in TetraProc).
+
+* Added a plugin converting the output of three
+  coincident cardiods (azimuths 60, -60, 180) to
+  first order B-format.
+
+--------------------------------------------
+A note on channel order
+--------------------------------------------
+
+All plugins operate to the Furse-Malham
+standard. This means that for the panners
+the W output is the input attenuated by 3dB,
+and all others have a maximum gain of 0dB.
+The decoders expect Furse-Malham signals.
+The rotators could be used with any type
+of normalisation.
+
+When using the plugins in e.g. Ardour you
+don't see the audio port names. The channel
+orders are:
+
+1,1 plugins:  W XYZ
+2,2 plugins:  W XYZ RSTUV
+3,3 plugins:  W XYZ RSTUV KLMNOPQ
+
+2,1 plugins:  W XY UV Z    <-- note Z is last.
+3,1 plugins:  W XY UV PQ Z <-- note Z is last.
+
+Or in plain words, the full periphonic plugins
+use the Furse-Malham order, the mixed order N,1
+ones use the horizontal components in standard
+order and followed by Z. 
+
+
+--------------------------------------------
+AMB-plugins-0.4.0   Released 2009.02.02
+--------------------------------------------
+
+* Two new plugins added, both second order
+  periphonic (i.e. nine channels).
+
+  1967 2nd order Mono panner
+  1968 2nd order Rotator
+
+--------------------------------------------
+AMB-plugins-0.3.0   Released 2007.08.27
+--------------------------------------------
+
+* Two new plugins added, both second order horizontal
+  and first order vertical (i.e. six channels).
+
+  1979 2nd order Mono panner
+  1980 2nd order Rotator
+
+* New name scheme introduced, using two numbers:
+  a,b means horizontal order 'a', vertical order 'b'.
+
+* Plugins are now organised in two files:
+
+  ambisonic1.so : first order (6 plugins)
+  ambisonic2.so : second order (2 plugins)
+
+The install target in the Makefile will remove any
+older versions. If you have saved host configurations
+(e.g. Ardour sessions) using any of these plugins you
+may have to remove and re-insert them.
+
+
+--------------------------------------------
+AMB-plugins-0.1.0   Released 2006.07.16
+--------------------------------------------
+
+Main feature of this release are the improved decoders.
+These now have optional phase-aligned shelf filters that
+enable to have a different decoding matrix for low and
+high frequencies. This is explained in more detail below.
+(A similar feature was present in older releases, but the
+implementation was not entirely correct and the filters
+used were not phase aligned). 
+
+NOTE: if you are using the decoders in existing patches
+or sessions you may have to remove and re-insert them
+as the number and type of control ports has changed.
+
+The panner and rotation plugins are the same as in the
+previous release (0.0.2).
+
+
+B-format to square decoder
+--------------------------
+
+B-format to hexagon decoder
+---------------------------
+
+B-format to cube decoder
+------------------------
+
+Decode a first order B-format to signals for a square, regular
+hexagon or cube speaker layout. All plugins have W,X,Y,Z inputs
+but Z is not used for the sqaure and hexagon versions. All three
+decoders share the same controls:
+ 
+  Front:     This switch selects one of two possible layouts.
+             When 'off' the decoder assumes the usual setup
+             with left and right front speakers. The first
+             output is the left front speaker, then going
+             clockwise around the circle.
+             When 'on', the decoder assumes a rotated layout
+             with a single centre front and back speaker.
+             The first output is centre front in this case.
+             
+  Distance:  This should be used to compensate for the proximity
+             effect of the speakers in a small (e.g. control
+             room) layout. The parameter is the distance of the
+             listener to the speakers [1 .. 30m]. It controls a
+             1st order highpass filter on the velocity components.
+              
+  Shelf, HF XYZ gain, LF XYZ gain, Shelf frequency:
+
+             These control the relative gain of the first (XYZ)
+             relative to the zero order (W) components. With the
+             Shelf switch 'off', the same value is used for all
+             frequencies  and controlled by the HF XYZ gain value.
+             LF XYZ gain and Shelf frequency are not used in that
+             case.  With Shelf switched 'on', separate control for
+             low and high frequencies is enabled. The Shelf frequency
+             parameter controls the transition frequency between the
+             two regions.             
+
+             The two gain controls work as follows:
+
+             At the minimum setting (1), the decoding is such that
+             there will never be any antiphase signals for a single
+             source. This "in-phase" setting is usually recommended
+             for large (auditorium) setups where a larger "sweet
+             spot" is desired.
+
+             At the centre value of the gain controls (sqrt(2) for
+             horizontal and sqrt(3) for the cube decoder), the 
+             result wil be the "max rE" decoding which is optimal
+             at high frequencies for small and medium size setups.
+
+             For the maximum value of the gain controls (2 for 2D
+             and 3 for 3D), the resulting decoding is the "max rV"
+             one which is optimal for low frequencies but will give
+             a smaller "sweet spot".
+             
+             For a small (control room) setup for a single listener
+             the normal settings would be max rE for HF and max rV
+             for LF, together with the correct distance compensation.
+           
+
+
+Mono to B format panner
+-----------------------
+
+Pan a mono source to a first order B-format. Controls are:
+
+  Elevation: Vertical component of the direction [-90 .. +90]. 
+  Azimuth:   Horizontal direction, [-180 .. +180].
+             Positive values are to the right. Back is +/-180.
+             
+  Changes to the control ports are 'smoothed' over one period.
+  The interpolation is done not on the input values but on the
+  direction vectors computed from them. This means for example
+  that if consecutive azimuth inputs are -170, +170, the result
+  will be a smooth transition through the back direction, just
+  as -10, +10 would interpolate via the front direction. 
+
+
+Stereo to B format panner
+-------------------------
+
+Pan a stereo source to a first order B-format. Controls are:
+
+  Elevation: Vertical component of the direction [-90 .. +90]. 
+  Azimuth:   Horizontal direction of the center of the stereo
+             image, [-180 .. +180]. Positive values are to the
+             right. Back is +/-180.
+  Width:     Horizontal width of the stereo image [-90 .. +90].
+             Negative values give a mirror image.             
+
+  As for the mono panner, the control port values are inter-
+  polated over one period, and there is no discontinuity at
+  +/- 180 azimuth, provided you give the right inputs.
+
+
+Horizontal rotator
+------------------
+
+Rotate a first order B-format signal around the Z axis. there 
+is just one control:
+  
+  Angle:     Rotation angle [-180 .. +180], positive is to the
+             right.
+
+  The rotation is smoothed in the same way as the for the two
+  panners.
+
+
+
+-----------------------------
+Using AMB plugins with Ardour
+-----------------------------
+
+Ardour is not aware of encoded formats such as B-format, and therefore
+using them requires some attention. Some hints:
+
+* Switch ON the option 'Use plugins while recording', and switch OFF
+the option 'Auto connect new tracks'. The latter is not saved in the
+session file, so watch out when reloading a session. The effects of
+the automatic connections can sometimes be quite confusing when using
+a mix of mono, stereo and B-format tracks and strips.
+
+* Panner plugins should normally be used post-fader. First create
+the strip's inputs (1 or 2) and outputs (4, 6, 8, 9, 16). Disable
+Ardour's multichannel panner, and insert and activate the plugin.
+
+* Apart from the 'auditioner', Ardour's mixer has no dedicated 
+modules for monitoring, and hence no place to 'insert' a decoder.
+A practical solution is to create a 'monitoring' strip (not a 
+'track' but a 'bus'). Insert the required decoder post-fader,
+connect the inputs to your B-format 'master' strip, and the outputs
+to the inputs of your monitoring system. Also connect the 'auditioner'
+outputs to the same destination as the first two decoder outputs.
+Apart from these, there should normally not be any other signals
+going directly to the speakers.
+
+

@@ -1,0 +1,49 @@
+-----------------------------------------------------------------------------------
+
+    Copyright (C) 2003 Fons Adriaensen
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+-----------------------------------------------------------------------------------
+
+
+--------------------------------------------------
+blvco 0.3.0 -- 12/4/2004
+--------------------------------------------------
+
+Pulse-VCO : Anti-aliased dirac pulse oscillator (flat amplitude spectrum)
+Saw-VCO   : Anti-aliased sawtooth oscillator (1/F amplitude spectrum)
+Rec-VCO   : Anti-aliased square / rectange oscillator
+
+All three oscillators are based on the same principle of using a precomputed
+interpolated dirac pulse. For the sawtooth and rectangular versions, the 'edge'
+is made by integrating the anti-aliased pulse.
+
+Aliases should be below -80dB for fundamental frequencies below Fsamp / 6
+(i.e. up to 8 kHz at Fsamp = 48 kHz). This frequency range includes the
+fundamental frequencies of all known musical instruments.
+
+Alpha versions of this plugin were evaluated by Matthias Nagorni, who
+compared their outputs to the sounds produced by his Moog Voyager and
+Doepfer synthesisers. Matthias reported that the plugins sounded quite
+'harsh' when compared to his analogue instruments. Comparing the spectra,
+it became clear that a mathematically 'exact' spectrum was not desirable
+from a musical point of view. For this reason, I added the lowpass filters.
+The default setting (0.5) will give you a sawtooth that is identical to the
+output of the Moog Voyager.
+
+The rectangulare VCO and and sync inputs are very much experimental at this
+stage. Feedback appreciated.
+

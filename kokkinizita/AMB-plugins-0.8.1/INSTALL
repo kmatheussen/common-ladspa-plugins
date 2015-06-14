@@ -1,0 +1,8 @@
+To install:
+
+cd to the AMB-plugins directory
+su
+make install
+
+
+Please read the README.

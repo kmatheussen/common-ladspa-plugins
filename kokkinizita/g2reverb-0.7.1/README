@@ -1,0 +1,116 @@
+-----------------------------------------------------------------------------------
+
+    Copyright (C) 2003-2014 Fons Adriaensen
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+-----------------------------------------------------------------------------------
+
+
+--------------------------------------------
+Version 0.7.1 -- 9/3/2014
+--------------------------------------------
+
+* Plugin file renamed to g2reverb.so, compatible
+  with older versions.
+
+* Removed the two zita-reverbs of version 0.6.1.
+  which are now in a separate package.
+
+
+--------------------------------------------
+Version 0.6.1 -- 28/8/2013
+--------------------------------------------
+
+* Plugin file renamed to zita-reverbs.so.
+  Any older versions in /usr/lib/ladspa must be
+  deleted to avoid conflicts.
+
+* Cleanup of the 10 year old original code.
+
+* Added
+
+  # 3701  zita-reverb
+  # 3702  zita-reverb-amb 
+
+These are LADSPA versions of zita-rev1 in resp. stereo
+and first order Ambisonic mode.
+
+Note: some of the defaults may seem strange when used in
+Ardour. The reason is that Ardour (3.3 at the time of writing)
+doesn't handle defaults correctly for ports which have the
+LOGARITHMIC hint set (the mouse wheel behaves strangely as
+well on those).
+
+Controls of the two zita-reverb plugins
+---------------------------------------
+
+Reverb controls:
+
+* Delay    :  Initial delay, in seconds.
+* Xover    :  Crossover frequency between RT-low and RT-mid.
+* RT-low   :  Reverb time (RT60) at low frequencies.
+* RT-mid   :  Reverb time (RT60) at medium frequencies.
+* Damping  :  The frequency at which the reverb time
+              becomes half the RT-mid value.
+
+There are two parametric filters which act on the 'wet'
+signal only:
+
+* F1-freq  :  Center frequency of first filter.
+* F1-gain  :  Gain of first filter.
+* F2-freq  :  Center frequency of second filter.  
+* F2-gain  :  Gain of second filter.
+
+Bandwidth is constant, and somewhat higher than average.
+Near the extreme frequency settings you get something very
+close to a shelf filter.
+
+Output controls:
+
+* Output mix (Stereo version)  : Balance between dry sound and reverb.
+
+* XYZ gain (Ambisonic version) : Relative gain of the first order
+                                 outputs. The default is correct for SN3D.
+                                 For 'FuMa' this should be set to +3 dB.
+
+The Ambisonic version never outputs the dry sound, it must be
+used as a send/return reverb, not as an insert.
+
+
+--------------------------------------------
+Version 0.3.1
+--------------------------------------------
+
+Added code to reset all audio upon deactivate(). Parameters
+are preserved across deactivate()/activate().
+
+Many thanks to Chris Cannam for pointing out the problem and
+for providing patches to solve it.
+
+
+--------------------------------------------
+g2reverb.so  -- First release - 22/8/2003
+--------------------------------------------
+
+This reverb is based on gverb by Juhana Sadeharju, but the code
+(now C++) is entirely original. I added a second input for stereo
+operation, and some code to prevent FP denormalisation.
+This is a preliminary release, and this plugin will probably change
+a lot in future versions.
+
+
+
+

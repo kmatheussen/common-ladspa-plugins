@@ -1,0 +1,59 @@
+-----------------------------------------------------------------------------------
+
+    Copyright (C) 2009-2014 Fons Adriaensen
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+-----------------------------------------------------------------------------------
+
+
+--------------------------------------------
+WAH-plugins-0.1.0   9/3/2014
+--------------------------------------------
+
+Changed unique ID to 1949 to avoid conflicts.
+
+
+--------------------------------------------
+WAH-plugins-0.0.1   First release 17/08/2009
+--------------------------------------------
+
+There's just one plugin in this first release,
+which is the combination of a 'wah' pedal and
+a simple envelope follower.
+
+Controls are:
+
+Freq: the resonance frequency of wah filter.
+This would normally be controlled using a
+midi pedal.
+
+Mix: crossfades between dry and wet signal, the
+first is the original input signal and the latter
+is the pure output of the resonant filter amplified
+by 18 dB.
+
+The three remaining parameters control the envelope
+follower. This produces a control signal that is
+added to the 'Freq' setting.
+
+Drive: input gain to the envelope follower (so
+this gain is not in the signal path).
+
+Decay: controls the decay time of the envelope.
+
+Range: controls how much the envelope is allowed
+to modify the basic frequency. 
+
