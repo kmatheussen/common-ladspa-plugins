@@ -1,10 +1,11 @@
 # the name of the target operating system
-SET(CMAKE_SYSTEM_NAME Windows)
+#SET(CMAKE_SYSTEM_NAME Windows)
+SET(CMAKE_SYSTEM_NAME Generic)
 
 # which compilers to use for C and C++
-SET(CMAKE_C_COMPILER i686-w64-mingw32-gcc -I/home/kjetil/lmms/include/)
-SET(CMAKE_CXX_COMPILER i686-w64-mingw32-g++ -I/home/kjetil/lmms/include/)
-SET(CMAKE_RC_COMPILER i686-w64-mingw32-windres)
+SET(CMAKE_C_COMPILER i686-w64-mingw32.static-gcc -I/home/kjetil/lmms/include/)
+SET(CMAKE_CXX_COMPILER i686-w64-mingw32.static-g++ -I/home/kjetil/lmms/include/)
+SET(CMAKE_RC_COMPILER i686-w64-mingw32.static-windres)
 
 # here is the target environment located
 # SET(CMAKE_FIND_ROOT_PATH  /usr/i586-mingw32msvc /home/alex/mingw-install )

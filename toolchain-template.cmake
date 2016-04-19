@@ -1,8 +1,10 @@
 # the name of the target operating system
+
+# Note: Must use Generic for Windows, not Windows.
 #SET(CMAKE_SYSTEM_NAME Windows)
-#SET(CMAKE_SYSTEM_NAME Generic)
+SET(CMAKE_SYSTEM_NAME Generic)
 #SET(CMAKE_SYSTEM_NAME Linux)
-SET(CMAKE_SYSTEM_NAME Darwin)
+#SET(CMAKE_SYSTEM_NAME Darwin)
 
 # which compilers to use for C and C++
 SET(CMAKE_C_COMPILER __CC__ -I__ROOT__/include/)
