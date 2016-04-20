@@ -8,7 +8,7 @@ fi
 set -e
 set -x
 
-MYFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++ -mtune=generic -mfpmath=sse -msse2  -Wno-gnu-designator -I/home/kjetil/Dropbox/radium_build/darwinx/visualisation_library_helpers -fvisibility=default"
+MYFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++ -mtune=generic -mfpmath=sse -msse2  -Wno-gnu-designator -fvisibility=default"
 
 COMPILER_FLAGS="$1 -I/home/kjetil/osxcross/target/bin/../macports/pkgs/opt/local/include  -L/home/kjetil/osxcross/target/bin/../macports/pkgs/opt/local/lib"
 
