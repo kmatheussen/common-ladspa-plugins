@@ -84,6 +84,9 @@ function build {
     if [[ $BUILD == *darwin* ]]
     then
         CMAKE_AR=x86_64-apple-darwin12-ar CMAKE_RANLIB=x86_64-apple-darwin12-ranlib CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="$CC $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="$CCC $COMPILER_FLAGS $2" CMAKE_EXE_LINKER_FLAGS="$2" CMAKE_MODULE_LINKER_FLAGS="$2" CMAKE_SHARED_LINKER_FLAGS="$2" CMAKE_CXX_LINK_EXECUTABLE="$CCC $2" CMAKE_CC_LINK_EXECUTABLE="$CC $2" CC="$CC" CXX="$CCC" LD="$CC $2" LD_FLAGS="$2" LDFLAGS="$2" LINKER="$CC $2" CMAKE_LINKER="$CC $2" cmake .
+    elif [[ $BUILD == *linux* ]]
+    then
+        CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" cmake .
     else
         CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" x86_64-w64-mingw32.static-cmake .
     fi
@@ -103,6 +106,9 @@ function build {
     if [[ $BUILD == *darwin* ]]
     then
         cp *.so $ROOT/$DEST/
+    elif [[ $BUILD == *linux* ]]
+    then
+        cp *.so $ROOT/$DEST/
     else
         cp *.dll $ROOT/$DEST/
     fi
@@ -110,8 +116,18 @@ function build {
     cd ..
 }
 
-build cmt  `x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`
-build swh "`x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`"
+if [[ $BUILD == *darwin* ]]
+then
+    build cmt  `x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`
+    build swh "`x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`"
+elif [[ $BUILD == *linux* ]]
+then
+    build cmt ""
+    build swh "-lrt"
+else
+    build cmt ""
+    build swh ""
+fi
 build tap
 build calf
 build caps

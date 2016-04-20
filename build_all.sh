@@ -19,6 +19,7 @@ export CPPFLAGS="$COMPILER_FLAGS"
 export CXXFLAGS="$COMPILER_FLAGS"
 
 
-./build_darwinx64.sh "$COMPILER_FLAGS"
+./build_linux64.sh "$COMPILER_FLAGS"
+#./build_darwinx64.sh "$COMPILER_FLAGS"
 #./build_mingw64.sh "$COMPILER_FLAGS"
 #./build_mingw32.sh "$COMPILER_FLAGS"
