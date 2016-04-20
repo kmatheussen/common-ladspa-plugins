@@ -33,7 +33,7 @@ void __attribute__((constructor)) swh_init(); // forward declaration
 
 inline int partition(LADSPA_Data array[], int left, int right);
 
-#ifdef __clang__
+#if 1 //def __clang__
 void q_sort(LADSPA_Data array[], int left, int right) {
 #else
 inline void q_sort(LADSPA_Data array[], int left, int right) {
