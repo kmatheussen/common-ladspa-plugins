@@ -14,14 +14,14 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-    
-    $Id: tap_eqbw.c,v 1.6 2009/08/17 11:16:19 tszilagyi Exp $
 */
 
 
-/* This plugin is identical to TAP Equalizer (2141), but it has
- * separate user controls for setting the bandwidth of every filter.
- */
+/* Please note that this plugin was inspired by and its code based
+upon Steve Harris's "DJ EQ" plugin (no. 1901).  While I give him
+credit for his excellent work, I reserve myself to be blamed for any
+bugs or malfunction. */
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -31,10 +31,10 @@
 #include "tap_utils.h"
 
 /* The Unique ID of the plugin */
-#define ID_MONO        2151
+#define ID_MONO        2141
 
 
-/* Default bandwidth of EQ filters in octaves */
+/* Bandwidth of EQ filters in octaves */
 #define BWIDTH        1.0f
 
 
@@ -58,21 +58,12 @@
 #define EQ_CH6F                     14
 #define EQ_CH7F                     15
 
-#define EQ_CH0B                     16
-#define EQ_CH1B                     17
-#define EQ_CH2B                     18
-#define EQ_CH3B                     19
-#define EQ_CH4B                     20
-#define EQ_CH5B                     21
-#define EQ_CH6B                     22
-#define EQ_CH7B                     23
-
-#define EQ_INPUT                    24
-#define EQ_OUTPUT                   25
+#define EQ_INPUT                    16
+#define EQ_OUTPUT                   17
 
 
 /* Total number of ports */
-#define PORTCOUNT_MONO  26
+#define PORTCOUNT_MONO  18
 
 
 static LADSPA_Descriptor *eqDescriptor = NULL;
@@ -80,56 +71,40 @@ static LADSPA_Descriptor *eqDescriptor = NULL;
 typedef struct {
 	LADSPA_Data *ch0f;
 	LADSPA_Data *ch0g;
-	LADSPA_Data *ch0b;
 	LADSPA_Data *ch1f;
 	LADSPA_Data *ch1g;
-	LADSPA_Data *ch1b;
 	LADSPA_Data *ch2f;
 	LADSPA_Data *ch2g;
-	LADSPA_Data *ch2b;
 	LADSPA_Data *ch3f;
 	LADSPA_Data *ch3g;
-	LADSPA_Data *ch3b;
 	LADSPA_Data *ch4f;
 	LADSPA_Data *ch4g;
-	LADSPA_Data *ch4b;
 	LADSPA_Data *ch5f;
 	LADSPA_Data *ch5g;
-	LADSPA_Data *ch5b;
 	LADSPA_Data *ch6f;
 	LADSPA_Data *ch6g;
-	LADSPA_Data *ch6b;
 	LADSPA_Data *ch7f;
 	LADSPA_Data *ch7g;
-	LADSPA_Data *ch7b;
 	LADSPA_Data *input;
 	LADSPA_Data *output;
 	biquad *     filters;
 	float        fs;
 	LADSPA_Data old_ch0f;
 	LADSPA_Data old_ch0g;
-	LADSPA_Data old_ch0b;
 	LADSPA_Data old_ch1f;
 	LADSPA_Data old_ch1g;
-	LADSPA_Data old_ch1b;
 	LADSPA_Data old_ch2f;
 	LADSPA_Data old_ch2g;
-	LADSPA_Data old_ch2b;
 	LADSPA_Data old_ch3f;
 	LADSPA_Data old_ch3g;
-	LADSPA_Data old_ch3b;
 	LADSPA_Data old_ch4f;
 	LADSPA_Data old_ch4g;
-	LADSPA_Data old_ch4b;
 	LADSPA_Data old_ch5f;
 	LADSPA_Data old_ch5g;
-	LADSPA_Data old_ch5b;
 	LADSPA_Data old_ch6f;
 	LADSPA_Data old_ch6g;
-	LADSPA_Data old_ch6b;
 	LADSPA_Data old_ch7f;
 	LADSPA_Data old_ch7g;
-	LADSPA_Data old_ch7b;
 
 	LADSPA_Data run_adding_gain;
 } eq;
@@ -150,8 +125,8 @@ static
 void
 activate_eq(LADSPA_Handle instance) {
 
-	eq *ptr = (eq *)instance;
-	biquad *filters = ptr->filters;
+        eq *ptr = (eq *)instance;
+        biquad *filters = ptr->filters;
 
 	biquad_init(&filters[0]);
 	biquad_init(&filters[1]);
@@ -164,10 +139,13 @@ activate_eq(LADSPA_Handle instance) {
 }
 
 
+
 static
 void
 cleanup_eq(LADSPA_Handle instance) {
 
+        eq *plugin_data = (eq *)instance;
+        free(plugin_data->filters);
 	free(instance);
 }
 
@@ -186,17 +164,11 @@ connectPort_eq(LADSPA_Handle instance, unsigned long port, LADSPA_Data *data) {
 	case EQ_CH0G:
 		plugin->ch0g = data;
 		break;
-	case EQ_CH0B:
-		plugin->ch0b = data;
-		break;
 	case EQ_CH1F:
 		plugin->ch1f = data;
 		break;
 	case EQ_CH1G:
 		plugin->ch1g = data;
-		break;
-	case EQ_CH1B:
-		plugin->ch1b = data;
 		break;
 	case EQ_CH2F:
 		plugin->ch2f = data;
@@ -204,17 +176,11 @@ connectPort_eq(LADSPA_Handle instance, unsigned long port, LADSPA_Data *data) {
 	case EQ_CH2G:
 		plugin->ch2g = data;
 		break;
-	case EQ_CH2B:
-		plugin->ch2b = data;
-		break;
 	case EQ_CH3F:
 		plugin->ch3f = data;
 		break;
 	case EQ_CH3G:
 		plugin->ch3g = data;
-		break;
-	case EQ_CH3B:
-		plugin->ch3b = data;
 		break;
 	case EQ_CH4F:
 		plugin->ch4f = data;
@@ -222,17 +188,11 @@ connectPort_eq(LADSPA_Handle instance, unsigned long port, LADSPA_Data *data) {
 	case EQ_CH4G:
 		plugin->ch4g = data;
 		break;
-	case EQ_CH4B:
-		plugin->ch4b = data;
-		break;
 	case EQ_CH5F:
 		plugin->ch5f = data;
 		break;
 	case EQ_CH5G:
 		plugin->ch5g = data;
-		break;
-	case EQ_CH5B:
-		plugin->ch5b = data;
 		break;
 	case EQ_CH6F:
 		plugin->ch6f = data;
@@ -240,17 +200,11 @@ connectPort_eq(LADSPA_Handle instance, unsigned long port, LADSPA_Data *data) {
 	case EQ_CH6G:
 		plugin->ch6g = data;
 		break;
-	case EQ_CH6B:
-		plugin->ch6b = data;
-		break;
 	case EQ_CH7F:
 		plugin->ch7f = data;
 		break;
 	case EQ_CH7G:
 		plugin->ch7g = data;
-		break;
-	case EQ_CH7B:
-		plugin->ch7b = data;
 		break;
 	case EQ_INPUT:
 		plugin->input = data;
@@ -270,9 +224,9 @@ instantiate_eq(const LADSPA_Descriptor *descriptor, unsigned long s_rate) {
 	float fs;
 
 	fs = s_rate;
-	
-	memset(ptr, 0, sizeof(eq));
 
+	memset(ptr, 0, sizeof(eq));
+	
 	filters = calloc(8, sizeof(biquad));
 
 	ptr->filters = filters;
@@ -280,36 +234,28 @@ instantiate_eq(const LADSPA_Descriptor *descriptor, unsigned long s_rate) {
 	ptr->run_adding_gain = 1.0f;
 
 	ptr->old_ch0f = 100.0f;
-	ptr->old_ch0g = 0.0f;
-	ptr->old_ch0b = BWIDTH;
+	ptr->old_ch0g = 0;
 
 	ptr->old_ch1f = 200.0f;
-	ptr->old_ch1g = 0.0f;
-	ptr->old_ch1b = BWIDTH;
+	ptr->old_ch1g = 0;
 
 	ptr->old_ch2f = 400.0f;
-	ptr->old_ch2g = 0.0f;
-	ptr->old_ch2b = BWIDTH;
+	ptr->old_ch2g = 0;
 
 	ptr->old_ch3f = 1000.0f;
-	ptr->old_ch3g = 0.0f;
-	ptr->old_ch3b = BWIDTH;
+	ptr->old_ch3g = 0;
 
 	ptr->old_ch4f = 3000.0f;
-	ptr->old_ch4g = 0.0f;
-	ptr->old_ch4b = BWIDTH;
+	ptr->old_ch4g = 0;
 
 	ptr->old_ch5f = 6000.0f;
-	ptr->old_ch5g = 0.0f;
-	ptr->old_ch5b = BWIDTH;
+	ptr->old_ch5g = 0;
 
 	ptr->old_ch6f = 12000.0f;
-	ptr->old_ch6g = 0.0f;
-	ptr->old_ch6b = BWIDTH;
+	ptr->old_ch6g = 0;
 
 	ptr->old_ch7f = 15000.0f;
-	ptr->old_ch7g = 0.0f;
-	ptr->old_ch7b = BWIDTH;
+	ptr->old_ch7g = 0;
 
 	eq_set_params(&filters[0], 100.0f, 0.0f, BWIDTH, fs);
 	eq_set_params(&filters[1], 200.0f, 0.0f, BWIDTH, fs);
@@ -332,28 +278,20 @@ run_eq(LADSPA_Handle instance, unsigned long sample_count) {
 
 	const LADSPA_Data ch0f = LIMIT(*(ptr->ch0f),40.0f,280.0f);
 	const LADSPA_Data ch0g = LIMIT(*(ptr->ch0g),-50.0f,20.0f);
-	const LADSPA_Data ch0b = LIMIT(*(ptr->ch0b),0.1f,5.0f);
 	const LADSPA_Data ch1f = LIMIT(*(ptr->ch1f),100.0f,500.0f);
 	const LADSPA_Data ch1g = LIMIT(*(ptr->ch1g),-50.0f,20.0f);
-	const LADSPA_Data ch1b = LIMIT(*(ptr->ch1b),0.1f,5.0f);
 	const LADSPA_Data ch2f = LIMIT(*(ptr->ch2f),200.0f,1000.0f);
 	const LADSPA_Data ch2g = LIMIT(*(ptr->ch2g),-50.0f,20.0f);
-	const LADSPA_Data ch2b = LIMIT(*(ptr->ch2b),0.1f,5.0f);
 	const LADSPA_Data ch3f = LIMIT(*(ptr->ch3f),400.0f,2800.0f);
 	const LADSPA_Data ch3g = LIMIT(*(ptr->ch3g),-50.0f,20.0f);
-	const LADSPA_Data ch3b = LIMIT(*(ptr->ch3b),0.1f,5.0f);
 	const LADSPA_Data ch4f = LIMIT(*(ptr->ch4f),1000.0f,5000.0f);
 	const LADSPA_Data ch4g = LIMIT(*(ptr->ch4g),-50.0f,20.0f);
-	const LADSPA_Data ch4b = LIMIT(*(ptr->ch4b),0.1f,5.0f);
 	const LADSPA_Data ch5f = LIMIT(*(ptr->ch5f),3000.0f,9000.0f);
 	const LADSPA_Data ch5g = LIMIT(*(ptr->ch5g),-50.0f,20.0f);
-	const LADSPA_Data ch5b = LIMIT(*(ptr->ch5b),0.1f,5.0f);
 	const LADSPA_Data ch6f = LIMIT(*(ptr->ch6f),6000.0f,18000.0f);
 	const LADSPA_Data ch6g = LIMIT(*(ptr->ch6g),-50.0f,20.0f);
-	const LADSPA_Data ch6b = LIMIT(*(ptr->ch6b),0.1f,5.0f);
 	const LADSPA_Data ch7f = LIMIT(*(ptr->ch7f),10000.0f,20000.0f);
 	const LADSPA_Data ch7g = LIMIT(*(ptr->ch7g),-50.0f,20.0f);
-	const LADSPA_Data ch7b = LIMIT(*(ptr->ch7b),0.1f,5.0f);
 
 	const LADSPA_Data * input = ptr->input;
 	LADSPA_Data * output = ptr->output;
@@ -366,68 +304,52 @@ run_eq(LADSPA_Handle instance, unsigned long sample_count) {
 
 
 	if ((ch0f != ptr->old_ch0f) ||
-	    (ch0g != ptr->old_ch0g) ||
-	    (ch0b != ptr->old_ch0b)) {
+	    (ch0g != ptr->old_ch0g)) {
 		ptr->old_ch0f = ch0f;
 		ptr->old_ch0g = ch0g;
-		ptr->old_ch0b = ch0b;
-		eq_set_params(&filters[0], ch0f, ch0g, ch0b, fs);
+		eq_set_params(&filters[0], ch0f, ch0g, BWIDTH, fs);
 	}
 	if ((ch1f != ptr->old_ch1f) ||
-	    (ch1g != ptr->old_ch1g) ||
-	    (ch1b != ptr->old_ch1b)) {
+	    (ch1g != ptr->old_ch1g)) {
 		ptr->old_ch1f = ch1f;
 		ptr->old_ch1g = ch1g;
-		ptr->old_ch1b = ch1b;
-		eq_set_params(&filters[1], ch1f, ch1g, ch1b, fs);
+		eq_set_params(&filters[1], ch1f, ch1g, BWIDTH, fs);
 	}
 	if ((ch2f != ptr->old_ch2f) ||
-	    (ch2g != ptr->old_ch2g) ||
-	    (ch2b != ptr->old_ch2b)) {
+	    (ch2g != ptr->old_ch2g)) {
 		ptr->old_ch2f = ch2f;
 		ptr->old_ch2g = ch2g;
-		ptr->old_ch2b = ch2b;
-		eq_set_params(&filters[2], ch2f, ch2g, ch2b, fs);
+		eq_set_params(&filters[2], ch2f, ch2g, BWIDTH, fs);
 	}
 	if ((ch3f != ptr->old_ch3f) ||
-	    (ch3g != ptr->old_ch3g) ||
-	    (ch3b != ptr->old_ch3b)) {
+	    (ch3g != ptr->old_ch3g)) {
 		ptr->old_ch3f = ch3f;
 		ptr->old_ch3g = ch3g;
-		ptr->old_ch3b = ch3b;
-		eq_set_params(&filters[3], ch3f, ch3g, ch3b, fs);
+		eq_set_params(&filters[3], ch3f, ch3g, BWIDTH, fs);
 	}
 	if ((ch4f != ptr->old_ch4f) ||
-	    (ch4g != ptr->old_ch4g) ||
-	    (ch4b != ptr->old_ch4b)) {
+	    (ch4g != ptr->old_ch4g)) {
 		ptr->old_ch4f = ch4f;
 		ptr->old_ch4g = ch4g;
-		ptr->old_ch4b = ch4b;
-		eq_set_params(&filters[4], ch4f, ch4g, ch4b, fs);
+		eq_set_params(&filters[4], ch4f, ch4g, BWIDTH, fs);
 	}
 	if ((ch5f != ptr->old_ch5f) ||
-	    (ch5g != ptr->old_ch5g) ||
-	    (ch5b != ptr->old_ch5b)) {
+	    (ch5g != ptr->old_ch5g)) {
 		ptr->old_ch5f = ch5f;
 		ptr->old_ch5g = ch5g;
-		ptr->old_ch5b = ch5b;
-		eq_set_params(&filters[5], ch5f, ch5g, ch5b, fs);
+		eq_set_params(&filters[5], ch5f, ch5g, BWIDTH, fs);
 	}
 	if ((ch6f != ptr->old_ch6f) ||
-	    (ch6g != ptr->old_ch6g) ||
-	    (ch6b != ptr->old_ch6b)) {
+	    (ch6g != ptr->old_ch6g)) {
 		ptr->old_ch6f = ch6f;
 		ptr->old_ch6g = ch6g;
-		ptr->old_ch6b = ch6b;
-		eq_set_params(&filters[6], ch6f, ch6g, ch6b, fs);
+		eq_set_params(&filters[6], ch6f, ch6g, BWIDTH, fs);
 	}
 	if ((ch7f != ptr->old_ch7f) ||
-	    (ch7g != ptr->old_ch7g) ||
-	    (ch7b != ptr->old_ch7b)) {
+	    (ch7g != ptr->old_ch7g)) {
 		ptr->old_ch7f = ch7f;
 		ptr->old_ch7g = ch7g;
-		ptr->old_ch7b = ch7b;
-		eq_set_params(&filters[7], ch7f, ch7g, ch7b, fs);
+		eq_set_params(&filters[7], ch7f, ch7g, BWIDTH, fs);
 	}
 
 	for (pos = 0; pos < sample_count; pos++) {
@@ -472,28 +394,20 @@ run_adding_eq(LADSPA_Handle instance, unsigned long sample_count) {
 
 	const LADSPA_Data ch0f = LIMIT(*(ptr->ch0f),40.0f,280.0f);
 	const LADSPA_Data ch0g = LIMIT(*(ptr->ch0g),-50.0f,20.0f);
-	const LADSPA_Data ch0b = LIMIT(*(ptr->ch0b),0.1f,5.0f);
 	const LADSPA_Data ch1f = LIMIT(*(ptr->ch1f),100.0f,500.0f);
 	const LADSPA_Data ch1g = LIMIT(*(ptr->ch1g),-50.0f,20.0f);
-	const LADSPA_Data ch1b = LIMIT(*(ptr->ch1b),0.1f,5.0f);
 	const LADSPA_Data ch2f = LIMIT(*(ptr->ch2f),200.0f,1000.0f);
 	const LADSPA_Data ch2g = LIMIT(*(ptr->ch2g),-50.0f,20.0f);
-	const LADSPA_Data ch2b = LIMIT(*(ptr->ch2b),0.1f,5.0f);
 	const LADSPA_Data ch3f = LIMIT(*(ptr->ch3f),400.0f,2800.0f);
 	const LADSPA_Data ch3g = LIMIT(*(ptr->ch3g),-50.0f,20.0f);
-	const LADSPA_Data ch3b = LIMIT(*(ptr->ch3b),0.1f,5.0f);
 	const LADSPA_Data ch4f = LIMIT(*(ptr->ch4f),1000.0f,5000.0f);
 	const LADSPA_Data ch4g = LIMIT(*(ptr->ch4g),-50.0f,20.0f);
-	const LADSPA_Data ch4b = LIMIT(*(ptr->ch4b),0.1f,5.0f);
 	const LADSPA_Data ch5f = LIMIT(*(ptr->ch5f),3000.0f,9000.0f);
 	const LADSPA_Data ch5g = LIMIT(*(ptr->ch5g),-50.0f,20.0f);
-	const LADSPA_Data ch5b = LIMIT(*(ptr->ch5b),0.1f,5.0f);
 	const LADSPA_Data ch6f = LIMIT(*(ptr->ch6f),6000.0f,18000.0f);
 	const LADSPA_Data ch6g = LIMIT(*(ptr->ch6g),-50.0f,20.0f);
-	const LADSPA_Data ch6b = LIMIT(*(ptr->ch6b),0.1f,5.0f);
 	const LADSPA_Data ch7f = LIMIT(*(ptr->ch7f),10000.0f,20000.0f);
 	const LADSPA_Data ch7g = LIMIT(*(ptr->ch7g),-50.0f,20.0f);
-	const LADSPA_Data ch7b = LIMIT(*(ptr->ch7b),0.1f,5.0f);
 
 	const LADSPA_Data * input = ptr->input;
 	LADSPA_Data * output = ptr->output;
@@ -506,68 +420,52 @@ run_adding_eq(LADSPA_Handle instance, unsigned long sample_count) {
 
 
 	if ((ch0f != ptr->old_ch0f) ||
-	    (ch0g != ptr->old_ch0g) ||
-	    (ch0b != ptr->old_ch0b)) {
+	    (ch0g != ptr->old_ch0g)) {
 		ptr->old_ch0f = ch0f;
 		ptr->old_ch0g = ch0g;
-		ptr->old_ch0b = ch0b;
-		eq_set_params(&filters[0], ch0f, ch0g, ch0b, fs);
+		eq_set_params(&filters[0], ch0f, ch0g, BWIDTH, fs);
 	}
 	if ((ch1f != ptr->old_ch1f) ||
-	    (ch1g != ptr->old_ch1g) ||
-	    (ch1b != ptr->old_ch1b)) {
+	    (ch1g != ptr->old_ch1g)) {
 		ptr->old_ch1f = ch1f;
 		ptr->old_ch1g = ch1g;
-		ptr->old_ch1b = ch1b;
-		eq_set_params(&filters[1], ch1f, ch1g, ch1b, fs);
+		eq_set_params(&filters[1], ch1f, ch1g, BWIDTH, fs);
 	}
 	if ((ch2f != ptr->old_ch2f) ||
-	    (ch2g != ptr->old_ch2g) ||
-	    (ch2b != ptr->old_ch2b)) {
+	    (ch2g != ptr->old_ch2g)) {
 		ptr->old_ch2f = ch2f;
 		ptr->old_ch2g = ch2g;
-		ptr->old_ch2b = ch2b;
-		eq_set_params(&filters[2], ch2f, ch2g, ch2b, fs);
+		eq_set_params(&filters[2], ch2f, ch2g, BWIDTH, fs);
 	}
 	if ((ch3f != ptr->old_ch3f) ||
-	    (ch3g != ptr->old_ch3g) ||
-	    (ch3b != ptr->old_ch3b)) {
+	    (ch3g != ptr->old_ch3g)) {
 		ptr->old_ch3f = ch3f;
 		ptr->old_ch3g = ch3g;
-		ptr->old_ch3b = ch3b;
-		eq_set_params(&filters[3], ch3f, ch3g, ch3b, fs);
+		eq_set_params(&filters[3], ch3f, ch3g, BWIDTH, fs);
 	}
 	if ((ch4f != ptr->old_ch4f) ||
-	    (ch4g != ptr->old_ch4g) ||
-	    (ch4b != ptr->old_ch4b)) {
+	    (ch4g != ptr->old_ch4g)) {
 		ptr->old_ch4f = ch4f;
 		ptr->old_ch4g = ch4g;
-		ptr->old_ch4b = ch4b;
-		eq_set_params(&filters[4], ch4f, ch4g, ch4b, fs);
+		eq_set_params(&filters[4], ch4f, ch4g, BWIDTH, fs);
 	}
 	if ((ch5f != ptr->old_ch5f) ||
-	    (ch5g != ptr->old_ch5g) ||
-	    (ch5b != ptr->old_ch5b)) {
+	    (ch5g != ptr->old_ch5g)) {
 		ptr->old_ch5f = ch5f;
 		ptr->old_ch5g = ch5g;
-		ptr->old_ch5b = ch5b;
-		eq_set_params(&filters[5], ch5f, ch5g, ch5b, fs);
+		eq_set_params(&filters[5], ch5f, ch5g, BWIDTH, fs);
 	}
 	if ((ch6f != ptr->old_ch6f) ||
-	    (ch6g != ptr->old_ch6g) ||
-	    (ch6b != ptr->old_ch6b)) {
+	    (ch6g != ptr->old_ch6g)) {
 		ptr->old_ch6f = ch6f;
 		ptr->old_ch6g = ch6g;
-		ptr->old_ch6b = ch6b;
-		eq_set_params(&filters[6], ch6f, ch6g, ch6b, fs);
+		eq_set_params(&filters[6], ch6f, ch6g, BWIDTH, fs);
 	}
 	if ((ch7f != ptr->old_ch7f) ||
-	    (ch7g != ptr->old_ch7g) ||
-	    (ch7b != ptr->old_ch7b)) {
+	    (ch7g != ptr->old_ch7g)) {
 		ptr->old_ch7f = ch7f;
 		ptr->old_ch7g = ch7g;
-		ptr->old_ch7b = ch7b;
-		eq_set_params(&filters[7], ch7f, ch7g, ch7b, fs);
+		eq_set_params(&filters[7], ch7f, ch7g, BWIDTH, fs);
 	}
 
 	for (pos = 0; pos < sample_count; pos++) {
@@ -607,9 +505,9 @@ _init() {
 
 	if (eqDescriptor) {
 		eqDescriptor->UniqueID = ID_MONO;
-		eqDescriptor->Label = "tap_equalizer_bw";
+		eqDescriptor->Label = "tap_equalizer";
 		eqDescriptor->Properties = 0;
-		eqDescriptor->Name = "TAP Equalizer/BW";
+		eqDescriptor->Name = "TAP Equalizer";
 		eqDescriptor->Maker = "Tom Szilagyi";
 		eqDescriptor->Copyright = "GPL";
 		eqDescriptor->PortCount = PORTCOUNT_MONO;
@@ -654,17 +552,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH0G].LowerBound = -50;
 		port_range_hints[EQ_CH0G].UpperBound = +20;
-		/* Parameters for CH0 bandwidth [octaves] */
-		port_descriptors[EQ_CH0B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH0B] =
-		 "Band 1 Bandwidth [octaves]";
-		port_range_hints[EQ_CH0B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH0B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH0B].UpperBound = 5.0f;
 
 
 
@@ -691,17 +578,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH1G].LowerBound = -50;
 		port_range_hints[EQ_CH1G].UpperBound = +20;
-		/* Parameters for CH1 bandwidth [octaves] */
-		port_descriptors[EQ_CH1B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH1B] =
-		 "Band 2 Bandwidth [octaves]";
-		port_range_hints[EQ_CH1B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH1B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH1B].UpperBound = 5.0f;
 
 
 
@@ -728,17 +604,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH2G].LowerBound = -50;
 		port_range_hints[EQ_CH2G].UpperBound = +20;
-		/* Parameters for CH2 bandwidth [octaves] */
-		port_descriptors[EQ_CH2B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH2B] =
-		 "Band 3 Bandwidth [octaves]";
-		port_range_hints[EQ_CH2B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH2B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH2B].UpperBound = 5.0f;
 
 
 
@@ -765,17 +630,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH3G].LowerBound = -50;
 		port_range_hints[EQ_CH3G].UpperBound = +20;
-		/* Parameters for CH3 bandwidth [octaves] */
-		port_descriptors[EQ_CH3B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH3B] =
-		 "Band 4 Bandwidth [octaves]";
-		port_range_hints[EQ_CH3B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH3B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH3B].UpperBound = 5.0f;
 
 
 
@@ -802,17 +656,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH4G].LowerBound = -50;
 		port_range_hints[EQ_CH4G].UpperBound = +20;
-		/* Parameters for CH4 bandwidth [octaves] */
-		port_descriptors[EQ_CH4B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH4B] =
-		 "Band 5 Bandwidth [octaves]";
-		port_range_hints[EQ_CH4B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH4B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH4B].UpperBound = 5.0f;
 
 
 
@@ -839,17 +682,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH5G].LowerBound = -50;
 		port_range_hints[EQ_CH5G].UpperBound = +20;
-		/* Parameters for CH5 bandwidth [octaves] */
-		port_descriptors[EQ_CH5B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH5B] =
-		 "Band 6 Bandwidth [octaves]";
-		port_range_hints[EQ_CH5B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH5B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH5B].UpperBound = 5.0f;
 
 
 
@@ -876,17 +708,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH6G].LowerBound = -50;
 		port_range_hints[EQ_CH6G].UpperBound = +20;
-		/* Parameters for CH6 bandwidth [octaves] */
-		port_descriptors[EQ_CH6B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH6B] =
-		 "Band 7 Bandwidth [octaves]";
-		port_range_hints[EQ_CH6B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH6B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH6B].UpperBound = 5.0f;
 
 
 
@@ -913,17 +734,6 @@ _init() {
 			LADSPA_HINT_DEFAULT_0;
 		port_range_hints[EQ_CH7G].LowerBound = -50;
 		port_range_hints[EQ_CH7G].UpperBound = +20;
-		/* Parameters for CH7 bandwidth [octaves] */
-		port_descriptors[EQ_CH7B] =
-		 LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-		port_names[EQ_CH7B] =
-		 "Band 8 Bandwidth [octaves]";
-		port_range_hints[EQ_CH7B].HintDescriptor =
-			LADSPA_HINT_BOUNDED_BELOW | 
-			LADSPA_HINT_BOUNDED_ABOVE | 
-			LADSPA_HINT_DEFAULT_1;
-		port_range_hints[EQ_CH7B].LowerBound = 0.1f;
-		port_range_hints[EQ_CH7B].UpperBound = 5.0f;
 
 
 
