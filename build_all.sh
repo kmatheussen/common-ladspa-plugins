@@ -22,6 +22,6 @@ export CXXFLAGS="$COMPILER_FLAGS"
 # Makes sense to build one at a time. Something is usually not working:
 
 ./build_linux64.sh "$COMPILER_FLAGS"
-#./build_darwinx64.sh "$COMPILER_FLAGS"
-#./build_mingw64.sh "$COMPILER_FLAGS"
-#./build_mingw32.sh "$COMPILER_FLAGS"
+./build_darwinx64.sh "$COMPILER_FLAGS"
+./build_mingw64.sh "$COMPILER_FLAGS"
+./build_mingw32.sh "$COMPILER_FLAGS"

@@ -81,7 +81,7 @@ function build_kokkinizita {
     build $ROOT/kokkinizita/$1 $1
 }
 
-build_kokkinizita tap-plugins-0.7.3
+build_kokkinizita tap-plugins-git
 
 build_kokkinizita MCP-plugins-0.4.0
 build_kokkinizita AMB-plugins-0.8.1
