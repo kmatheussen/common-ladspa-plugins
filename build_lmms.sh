@@ -112,6 +112,8 @@ function build {
     else
         cp *.dll $ROOT/$DEST/
     fi
+
+    rm -f $ROOT/$DEST/ladspa-util.*
     
     cd ..
 }
