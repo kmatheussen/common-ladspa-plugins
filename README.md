@@ -1,6 +1,7 @@
 # common-ladspa-plugins
 
-Ideally, it should be enough to write './build_all.sh', but you might want to edit some scripts to make it work.
+Ideally, it should be enough to write './build_all.sh', but you might need to edit some scripts to make it work.
+
 Anyhow, running ./build_all.sh is supposed to compile the most common LADSPA plugins for linux64, mingw64, mingw32,
 and darwin64. You need cross compilers from mxe (http://mxe.cc) and osxcross (https://github.com/tpoechtrager/osxcross).
 
