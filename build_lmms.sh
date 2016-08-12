@@ -36,8 +36,8 @@ CCC=$2
 BUILD=$3
 DEST=$4
 
-WINDRES=i686-w64-mingw32.static-windres
-PKGCONFIG=i686-w64-mingw32.static-pkg-config
+WINDRES=i686-w64-mingw32.shared-windres
+PKGCONFIG=i686-w64-mingw32.shared-pkg-config
 
 ROOT=`pwd`
 COMPILER_FLAGS="$COMPILER_FLAGS -I$ROOT/include"
@@ -77,10 +77,10 @@ function build {
         sed -i s/-shared//g CMakeLists.txt
     fi
     
-#    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.static-cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake .
-#    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.static-cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake .
-#    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.static-cmake .
-    #CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" x86_64-w64-mingw32.static-cmake .
+#    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.shared-cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake .
+#    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.shared-cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake .
+#    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.shared-cmake .
+    #CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" x86_64-w64-mingw32.shared-cmake .
     if [[ $BUILD == *darwin* ]]
     then
         CMAKE_AR=x86_64-apple-darwin12-ar CMAKE_RANLIB=x86_64-apple-darwin12-ranlib CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="$CC $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="$CCC $COMPILER_FLAGS $2" CMAKE_EXE_LINKER_FLAGS="$2" CMAKE_MODULE_LINKER_FLAGS="$2" CMAKE_SHARED_LINKER_FLAGS="$2" CMAKE_CXX_LINK_EXECUTABLE="$CCC $2" CMAKE_CC_LINK_EXECUTABLE="$CC $2" CC="$CC" CXX="$CCC" LD="$CC $2" LD_FLAGS="$2" LDFLAGS="$2" LINKER="$CC $2" CMAKE_LINKER="$CC $2" cmake .
@@ -88,7 +88,7 @@ function build {
     then
         CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" cmake .
     else
-        CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" x86_64-w64-mingw32.static-cmake .
+        CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" x86_64-w64-mingw32.shared-cmake .
     fi
     
     if [[ $BUILD == *darwin* ]]
@@ -129,6 +129,6 @@ else
     build swh ""
 fi
 
-#build tap
+#build tap # Built in build_kokkiniza.sh instead.
 build calf
 build caps

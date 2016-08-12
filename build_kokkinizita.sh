@@ -53,15 +53,15 @@ function build {
 
     if [[ $BUILD == *darwin* ]]
     then
-        cat Makefile | sed s/g++/$CCC/g >Makefile.cross
+        cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g >Makefile.cross
     elif [[ $BUILD == *linux* ]]
     then
-        cat Makefile | sed s/g++/$CCC/g >Makefile.cross
+        cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g >Makefile.cross
     else
-        cat Makefile | sed s/g++/$CCC/g | sed 's/\.so/\.dll/g' >Makefile.cross
+        cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g | sed 's/\.so/\.dll/g' >Makefile.cross
     fi
     
-    CXX="$CCC" CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" make -f Makefile.cross
+    CC="$CC" CXX="$CCC" CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" make -f Makefile.cross
 
     if [[ $BUILD == *darwin* ]]
     then
