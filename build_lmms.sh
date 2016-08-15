@@ -63,7 +63,6 @@ cd LadspaEffect
 cat $ROOT/toolchain-template.cmake | sed s/__CC__/$CC/g | sed s/__CCC__/$CCC/g | sed s/__WINDRES__/$WINDRES/g | sed s:__ROOT__:$ROOT/$BUILD:g >toolchain.cmake
 
 
-
 function build {
     cd $1
     
@@ -87,6 +86,9 @@ function build {
     elif [[ $BUILD == *linux* ]]
     then
         CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" cmake .
+    elif [[ $BUILD == *mingw32* ]]
+    then
+        CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" i686-w64-mingw32.shared-cmake .
     else
         CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" x86_64-w64-mingw32.shared-cmake .
     fi
@@ -118,6 +120,10 @@ function build {
     cd ..
 }
 
+#build tap # Built in build_kokkiniza.sh instead.build caps
+build calf
+build caps
+
 if [[ $BUILD == *darwin* ]]
 then
     build cmt  `x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`
@@ -131,6 +137,3 @@ else
     build swh ""
 fi
 
-#build tap # Built in build_kokkiniza.sh instead.
-build calf
-build caps
