@@ -25,7 +25,7 @@ void __attribute__((constructor)) swh_init(); // forward declaration
 #define _WINDOWS_DLL_EXPORT_ 
 #endif
 
-#line 9 "hermes_filter_1200.xml"
+//#line 9 "hermes_filter_1200.xml"
 
 #include "ladspa-util.h"
 #include "util/blo.h"
@@ -329,7 +329,7 @@ static void activateHermesFilter(LADSPA_Handle instance) {
 	blo_h_tables *tables = plugin_data->tables;
 	sv_filter *xover_b1_data = plugin_data->xover_b1_data;
 	sv_filter *xover_b2_data = plugin_data->xover_b2_data;
-#line 186 "hermes_filter_1200.xml"
+//#line 186 "hermes_filter_1200.xml"
 	setup_svf(filt_data[0], 0, 0, 0, 0);
 	setup_svf(filt_data[1], 0, 0, 0, 0);
 	setup_svf(filt_data[2], 0, 0, 0, 0);
@@ -371,7 +371,7 @@ static void activateHermesFilter(LADSPA_Handle instance) {
 }
 
 static void cleanupHermesFilter(LADSPA_Handle instance) {
-#line 211 "hermes_filter_1200.xml"
+//#line 211 "hermes_filter_1200.xml"
 	HermesFilter *plugin_data = (HermesFilter *)instance;
 	free(plugin_data->filt_data[0]);
 	free(plugin_data->filt_data[1]);
@@ -586,7 +586,7 @@ static LADSPA_Handle instantiateHermesFilter(
 	sv_filter *xover_b1_data = NULL;
 	sv_filter *xover_b2_data = NULL;
 
-#line 157 "hermes_filter_1200.xml"
+//#line 157 "hermes_filter_1200.xml"
 	long i;
 	
 	sample_rate = s_rate;
@@ -820,7 +820,7 @@ static void runHermesFilter(LADSPA_Handle instance, unsigned long sample_count) 
 	sv_filter * xover_b1_data = plugin_data->xover_b1_data;
 	sv_filter * xover_b2_data = plugin_data->xover_b2_data;
 
-#line 231 "hermes_filter_1200.xml"
+//#line 231 "hermes_filter_1200.xml"
 	unsigned long pos;
 	int i;
 	
@@ -1204,7 +1204,7 @@ static void runAddingHermesFilter(LADSPA_Handle instance, unsigned long sample_c
 	sv_filter * xover_b1_data = plugin_data->xover_b1_data;
 	sv_filter * xover_b2_data = plugin_data->xover_b2_data;
 
-#line 231 "hermes_filter_1200.xml"
+//#line 231 "hermes_filter_1200.xml"
 	unsigned long pos;
 	int i;
 	
