@@ -540,7 +540,7 @@ uint32_t multibandlimiter_audio_module::process(uint32_t offset, uint32_t numsam
             } // process single strip with filter
 
             // write multiband coefficient to buffer
-            buffer[pos] = std::min(*params[param_limit] / std::max(fabs(sum_left), fabs(sum_right)), 1.0);
+            buffer[pos] = std::min(double(*params[param_limit] / std::max(fabs(sum_left), fabs(sum_right))), 1.0);
 
             for (int i = 0; i < strips; i++) {
                 // process gain reduction
