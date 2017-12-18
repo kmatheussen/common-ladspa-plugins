@@ -8,9 +8,11 @@ fi
 set -e
 set -x
 
-MYFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++ -mtune=generic -mfpmath=sse -msse2  -Wno-gnu-designator -fvisibility=default"
+#-mmacosx-version-min=10.7 -stdlib=libc++
 
-COMPILER_FLAGS="$1 -I/home/kjetil/osxcross/target/bin/../macports/pkgs/opt/local/include  -L/home/kjetil/osxcross/target/bin/../macports/pkgs/opt/local/lib"
+MYFLAGS="-mtune=generic -mfpmath=sse -msse2  -Wno-gnu-designator -fvisibility=default"
+
+COMPILER_FLAGS="$1 -I/opt/local/include  -Llocal/lib"
 
 SYSTEM=darwinx64
 

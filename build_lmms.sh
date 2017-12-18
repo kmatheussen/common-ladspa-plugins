@@ -82,7 +82,7 @@ function build {
     #CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" x86_64-w64-mingw32.shared-cmake .
     if [[ $BUILD == *darwin* ]]
     then
-        CMAKE_AR=x86_64-apple-darwin12-ar CMAKE_RANLIB=x86_64-apple-darwin12-ranlib CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="$CC $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="$CCC $COMPILER_FLAGS $2" CMAKE_EXE_LINKER_FLAGS="$2" CMAKE_MODULE_LINKER_FLAGS="$2" CMAKE_SHARED_LINKER_FLAGS="$2" CMAKE_CXX_LINK_EXECUTABLE="$CCC $2" CMAKE_CC_LINK_EXECUTABLE="$CC $2" CC="$CC" CXX="$CCC" LD="$CC $2" LD_FLAGS="$2" LDFLAGS="$2" LINKER="$CC $2" CMAKE_LINKER="$CC $2" cmake .
+        CMAKE_AR=x86_64-apple-darwin17-ar CMAKE_RANLIB=x86_64-apple-darwin17-ranlib CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="$CC $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="$CCC $COMPILER_FLAGS $2" CMAKE_EXE_LINKER_FLAGS="$2" CMAKE_MODULE_LINKER_FLAGS="$2" CMAKE_SHARED_LINKER_FLAGS="$2" CMAKE_CXX_LINK_EXECUTABLE="$CCC $2" CMAKE_CC_LINK_EXECUTABLE="$CC $2" CC="$CC" CXX="$CCC" LD="$CC $2" LD_FLAGS="$2" LDFLAGS="$2" LINKER="$CC $2" CMAKE_LINKER="$CC $2" cmake .
     elif [[ $BUILD == *linux* ]]
     then
         CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" cmake .
@@ -97,8 +97,8 @@ function build {
     then
         for a in CMakeFiles/*.dir/link.txt ; do
             sed -i s:-Wl,-soname,:"-o ":g $a
-            sed -i s:"/usr/bin/ar ":"x86_64-apple-darwin12-ar ":g $a
-            sed -i s:"/usr/bin/ranlib ":"x86_64-apple-darwin12-ranlib ":g $a
+            sed -i s:"/usr/bin/ar ":"x86_64-apple-darwin17-ar ":g $a
+            sed -i s:"/usr/bin/ranlib ":"x86_64-apple-darwin17-ranlib ":g $a
             #sed -i s/-Wl,-soname,$1.so//g $a
         done
     fi
@@ -126,8 +126,8 @@ build caps
 
 if [[ $BUILD == *darwin* ]]
 then
-    build cmt  `x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`
-    build swh "`x86_64-apple-darwin12-pkg-config --cflags --libs fftw3`"
+    build cmt  `x86_64-apple-darwin17-pkg-config --cflags --libs fftw3`
+    build swh "`x86_64-apple-darwin17-pkg-config --cflags --libs fftw3`"
 elif [[ $BUILD == *linux* ]]
 then
     build cmt ""
