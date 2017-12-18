@@ -63,7 +63,7 @@ typedef rfftw_plan fft_plan;
 
 #define MK_IMP(i) impulse2freq(c, i, IMP_LENGTH(i), impulse_freq[c]); c++
 
-inline void impulse2freq(int id, float *imp, unsigned int length, fftw_real *out);
+static void impulse2freq(int id, float *imp, unsigned int length, fftw_real *out);
 
 #include "impulses/all.h"
 
@@ -74,11 +74,7 @@ static fftw_real *real_in, *real_out, *comp_in, *comp_out;
 
 unsigned int fft_length[IMPULSES];
 
-#ifdef __clang__
-void impulse2freq(int id, float *imp, unsigned int length, fftw_real *out)
-#else
-inline void impulse2freq(int id, float *imp, unsigned int length, fftw_real *out)
-#endif
+static void impulse2freq(int id, float *imp, unsigned int length, fftw_real *out)
 {
   fftw_real impulse_time[MAX_FFT_LENGTH];
 #ifdef FFTW3
