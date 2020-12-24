@@ -38,3 +38,4 @@ rm -f build/*/dlls/hermes_filter_1200.*
 rm -f build/*/dlls/surround_encoder_1401.*
 
 
+echo "Success."

@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # cmake is a nightmare. There's always lots of different ways to do things, and if you are lucky, one of the ways work, if you can find it.
 
 
-# COMPILER_FLAGS="-msse2 -mfpmath=sse -O2" ./build_lmms.sh x86_64-w64-mingw32-gcc x86_64-w64-mingw32-g++ build/build_lmms build/dlls
+# COMPILER_FLAGS="-msse2 -mfpmath=sse -O2" ./build_lmms.sh $P-gcc $P-g++ build/build_lmms build/dlls
 
 
 if [ -z "$1" ]; then
@@ -74,6 +74,9 @@ function build {
         sed -i s/-Wl,-no-undefined//g CMakeLists.txt
         sed -i s/-Wl,-Bsymbolic//g CMakeLists.txt
         sed -i s/-shared//g CMakeLists.txt
+    elif [[ $BUILD == *linux* ]]
+    then
+        sed -i s/"-Wl,-no-undefined"/""/g CMakeLists.txt
     fi
     
 #    CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" i686-w64-mingw32.shared-cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake .
@@ -82,10 +85,10 @@ function build {
     #CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" x86_64-w64-mingw32.shared-cmake .
     if [[ $BUILD == *darwin* ]]
     then
-        CMAKE_AR=x86_64-apple-darwin17-ar CMAKE_RANLIB=x86_64-apple-darwin17-ranlib CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="$CC $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="$CCC $COMPILER_FLAGS $2" CMAKE_EXE_LINKER_FLAGS="$2" CMAKE_MODULE_LINKER_FLAGS="$2" CMAKE_SHARED_LINKER_FLAGS="$2" CMAKE_CXX_LINK_EXECUTABLE="$CCC $2" CMAKE_CC_LINK_EXECUTABLE="$CC $2" CC="$CC" CXX="$CCC" LD="$CC $2" LD_FLAGS="$2" LDFLAGS="$2" LINKER="$CC $2" CMAKE_LINKER="$CC $2" cmake .
+        CMAKE_AR=$P-ar CMAKE_RANLIB=$P-ranlib CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="`which $CC` $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="`which $CCC` $COMPILER_FLAGS $2" CMAKE_EXE_LINKER_FLAGS="$2" CMAKE_MODULE_LINKER_FLAGS="$2" CMAKE_SHARED_LINKER_FLAGS="$2" CMAKE_CXX_LINK_EXECUTABLE="`which $CCC` $2" CMAKE_CC_LINK_EXECUTABLE="`which $CC` $2" CC="`which $CC`" CXX="`which $CCC`" LD="`which $CC` $2" LD_FLAGS="$2" LDFLAGS="$2" LINKER="`which $CC` $2" CMAKE_LINKER="`which $CC` $2" cmake .
     elif [[ $BUILD == *linux* ]]
     then
-        CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" cmake .
+        CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" CMAKE_C_COMPILER="`which $CC` $COMPILER_FLAGS $2" CMAKE_CXX_COMPILER="`which $CCC` $COMPILER_FLAGS $2" cmake -DCMAKE_CXX_COMPILER=`which $CCC` -DCMAKE_C_COMPILER=`which $CC` . 
     elif [[ $BUILD == *mingw32* ]]
     then
         CFLAGS="$COMPILER_FLAGS $2" CXXFLAGS="$COMPILER_FLAGS $2" i686-w64-mingw32.shared-cmake .
@@ -97,8 +100,8 @@ function build {
     then
         for a in CMakeFiles/*.dir/link.txt ; do
             sed -i s:-Wl,-soname,:"-o ":g $a
-            sed -i s:"/usr/bin/ar ":"x86_64-apple-darwin17-ar ":g $a
-            sed -i s:"/usr/bin/ranlib ":"x86_64-apple-darwin17-ranlib ":g $a
+            sed -i s:"/usr/bin/ar ":"$P-ar ":g $a
+            sed -i s:"/usr/bin/ranlib ":"$P-ranlib ":g $a
             #sed -i s/-Wl,-soname,$1.so//g $a
         done
     fi
@@ -126,12 +129,12 @@ build caps
 
 if [[ $BUILD == *darwin* ]]
 then
-    build cmt  `x86_64-apple-darwin17-pkg-config --cflags --libs fftw3`
-    build swh "`x86_64-apple-darwin17-pkg-config --cflags --libs fftw3`"
+    build cmt  `$P-pkg-config --cflags --libs fftw3`
+    build swh "`$P-pkg-config --cflags --libs fftw3`"
 elif [[ $BUILD == *linux* ]]
 then
-    build cmt ""
     build swh "-lrt"
+    build cmt ""
 else
     build cmt ""
     build swh ""

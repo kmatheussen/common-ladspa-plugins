@@ -10,7 +10,7 @@ SET(CMAKE_SYSTEM_NAME Generic)
 SET(CMAKE_C_COMPILER __CC__ -I__ROOT__/include/)
 SET(CMAKE_CXX_COMPILER __CCC__ -I__ROOT__/include/)
 SET(CMAKE_RC_COMPILER __WINDRES__)
-set(CMAKE_AR x86_64-apple-darwin17-ar CACHE FILEPATH "Archiver")
+set(CMAKE_AR x86_64-apple-darwin21-ar CACHE FILEPATH "Archiver")
 
 # here is the target environment located
 # SET(CMAKE_FIND_ROOT_PATH  /usr/i586-mingw32msvc /home/alex/mingw-install )

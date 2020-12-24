@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 # COMPILER_FLAGS="-msse2 -mfpmath=sse -O2" ./build_kokkinizita.sh x86_64-w64-mingw32-gcc x86_64-w64-mingw32-g++ build/build_mcp build/dlls
@@ -56,7 +56,7 @@ function build {
         cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g >Makefile.cross
     elif [[ $BUILD == *linux* ]]
     then
-        cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g >Makefile.cross
+        cat Makefile | sed s:g++:$CCC:g | sed s:gcc:$CC:g >Makefile.cross
     else
         cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g | sed 's/\.so/\.dll/g' >Makefile.cross
     fi
