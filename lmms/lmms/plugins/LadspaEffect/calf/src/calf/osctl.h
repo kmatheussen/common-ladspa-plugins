@@ -466,16 +466,24 @@ struct osc_net_exception: public std::exception
 {
     int net_errno;
     std::string command, error_msg;
+#if defined(_WIN32)
+    osc_net_exception(const char *cmd, int _errno = -1)
+#else
     osc_net_exception(const char *cmd, int _errno = errno)
+#endif
     {
         command = cmd;
         net_errno = _errno;
+#if defined(_WIN32)
+        error_msg = "OSC error in "+command+": -1";
+#else
         error_msg = "OSC error in "+command+": "+strerror(_errno);
+#endif
     }
     virtual const char *what() const throw() { return error_msg.c_str(); }
     virtual ~osc_net_exception() throw () {}
 };
-    
+
 struct osc_net_dns_exception: public std::exception
 {
 #if 0
