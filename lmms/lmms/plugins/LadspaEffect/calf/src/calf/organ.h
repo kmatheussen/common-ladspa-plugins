@@ -151,13 +151,13 @@ protected:
     float rel_age_const;
 
     organ_voice_base(organ_parameters *_parameters, int &_sample_rate_ref, bool &_released_ref);
-    
+  
     inline float wave(float *data, dsp::fixed_point<int, 20> ph) {
-        return ph.lerp_table_lookup_float(data);
+      return ph.lerp_table_lookup_float<float>(data);
     }
     inline float big_wave(float *data, dsp::fixed_point<int64_t, 20> &ph) {
         // wrap to fit within the wave
-        return ph.lerp_table_lookup_float_mask(data, ORGAN_BIG_WAVE_SIZE - 1);
+      return ph.lerp_table_lookup_float_mask<float>(data, ORGAN_BIG_WAVE_SIZE - 1);
     }
 public:
     static inline small_wave_family &get_wave(int wave) {
