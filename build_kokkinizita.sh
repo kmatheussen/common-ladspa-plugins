@@ -61,7 +61,7 @@ function build {
         cat Makefile | sed s/g++/$CCC/g | sed s/gcc/$CC/g | sed 's/\.so/\.dll/g' >Makefile.cross
     fi
     
-    CC="$CC" CXX="$CCC" CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" make -f Makefile.cross
+    CC="$CC" CXX="$CCC" CFLAGS="$COMPILER_FLAGS" CXXFLAGS="$COMPILER_FLAGS" make -f Makefile.cross -j`nproc`
 
     if [[ $BUILD == *darwin* ]]
     then

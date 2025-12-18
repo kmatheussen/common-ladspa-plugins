@@ -6,7 +6,7 @@
 set -e
 set -x
 
-COMPILER_FLAGS="-mtune=generic -msse2 -mfpmath=sse -O3 -g"
+COMPILER_FLAGS="-mtune=generic -msse2 -mfpmath=sse -O3 -g -Wno-register"
 
 unset CFLAGS
 unset CFLAGS
